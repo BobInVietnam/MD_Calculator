@@ -11,16 +11,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calculator.ui.theme.CalculatorTheme
+import java.util.Stack
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,18 +48,18 @@ class MainActivity : ComponentActivity() {
 
 class CalculatorModel() {
     var calcResult = 0
-    var calcString = "0"
+    var CalcString = "0"
 
     fun updateString(string: String) {
-        if (calcString == "0") calcString = string
-        else calcString += string
+        if (CalcString == "0") CalcString = string
+        else CalcString += string
     }
     fun clearAll() {
-        calcString = "0"
+        CalcString = "0"
         calcResult = 0
     }
     fun clearOne() {
-        calcString.dropLast(1)
+        CalcString.dropLast(1)
     }
     fun calculate() {
 
@@ -115,9 +116,9 @@ fun CalculatorButton(symbol: String, style: ButtonStyle, onClick: () -> Unit) {
 
 @Composable
 fun Calculator() {
-    val calculator = CalculatorModel()
-    var CalcResult by remember { mutableStateOf(calculator.calcResult.toString()) }
-    var CalcString by remember { mutableStateOf(calculator.calcString) }
+    var calcResult by remember { mutableDoubleStateOf(0.0) }
+    var calcString by remember { mutableStateOf("0") }
+    var isDecimal = false
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
@@ -128,13 +129,13 @@ fun Calculator() {
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.End
         ) {
-            Text(CalcString,
+            Text(text = calcString,
                 fontWeight = FontWeight.Bold,
                 fontSize = 28.sp,
                 color = Color(103, 103, 103, 255)
             )
             Spacer(Modifier.height(20.dp))
-            Text(CalcResult,
+            Text(calcResult.toString(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 60.sp,
                 color = Color(103, 103, 103, 255)
@@ -153,25 +154,34 @@ fun Calculator() {
                     symbol = "C",
                     style = ButtonStyle.RED,
                     onClick = {
-                        calculator.clearAll();
+                        calcString = "0"
+                        calcResult = 0.0
                     })
                 CalculatorButton(
                     symbol = "del",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.clearOne();
+                        if (calcString.length == 1) {
+                            calcString = "0";
+                        } else {
+                            calcString = calcString.dropLast(1);
+                        }
                     })
                 CalculatorButton(
                     symbol = "%",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("%");
+                        if (calcString.last().isDigit())
+                            calcString += "%"
                     })
                 CalculatorButton(
                     symbol = "/",
                     style = ButtonStyle.YELLOW,
                     onClick = {
-                        calculator.updateString("/");
+                        if (calcString.last().isDigit()) {
+                            calcString += "/"
+                            isDecimal = false;
+                        }
                     })
             }
             Row(
@@ -182,25 +192,31 @@ fun Calculator() {
                     symbol = "7",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("7");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "7"
                     })
                 CalculatorButton(
                     symbol = "8",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("8");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "8"
                     })
                 CalculatorButton(
                     symbol = "9",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("9");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "9"
                     })
                 CalculatorButton(
                     symbol = "X",
                     style = ButtonStyle.YELLOW,
                     onClick = {
-                        calculator.updateString("*");
+                        if (calcString.last().isDigit()) {
+                            calcString += "*"
+                            isDecimal = false;
+                        }
                     })
             }
             Row(
@@ -211,25 +227,32 @@ fun Calculator() {
                     symbol = "4",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("4");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "4"
                     })
                 CalculatorButton(
                     symbol = "5",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("5");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "5"
                     })
                 CalculatorButton(
                     symbol = "6",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("6");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "6"
                     })
                 CalculatorButton(
                     symbol = "-",
                     style = ButtonStyle.YELLOW,
                     onClick = {
-                        calculator.updateString("-");
+                        if (calcString == "0") calcString = "-"
+                        if (calcString.last().isDigit()) {
+                            calcString += "-"
+                            isDecimal = false;
+                        }
                     })
             }
             Row(
@@ -240,25 +263,31 @@ fun Calculator() {
                     symbol = "1",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("1");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "1"
                     })
                 CalculatorButton(
                     symbol = "2",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("2");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "2"
                     })
                 CalculatorButton(
                     symbol = "3",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("3");
+                        if (calcString == "0") calcString = calcString.dropLast(1)
+                        calcString += "3"
                     })
                 CalculatorButton(
                     symbol = "+",
                     style = ButtonStyle.YELLOW,
                     onClick = {
-                        calculator.updateString("+");
+                        if (calcString.last().isDigit()) {
+                            calcString += "+"
+                            isDecimal = false;
+                        }
                     })
             }
             Row(
@@ -269,29 +298,89 @@ fun Calculator() {
                     symbol = "00",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("00");
+                        if (calcString != "0") calcString += "00"
                     })
                 CalculatorButton(
                     symbol = "0",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString("0");
+                        if (calcString != "0") calcString += "0"
                     })
                 CalculatorButton(
                     symbol = ".",
                     style = ButtonStyle.NEUTRAL,
                     onClick = {
-                        calculator.updateString(".");
+                        if (calcString.last().isDigit() && !isDecimal) {
+                            calcString += "."
+                            isDecimal = true
+                        }
                     })
                 CalculatorButton(
                     symbol = "=",
                     style = ButtonStyle.GREEN,
                     onClick = {
-                        calculator.calculate();
+                        calcResult = calculate(calcString);
                     })
             }
         }
     }
+}
+
+fun calculate(expression: String): Double {
+    // 1. Pre-process to handle percentage as a value (e.g., 20% -> 0.2)
+    // We replace "number%" with "(number/100)"
+    val cleanedExpr = expression.replace(Regex("(\\d+\\.?\\d*)%")) {
+        "(${it.groupValues[1]}/100)"
+    }
+
+    // 2. Tokenize the string (Numbers, Operators, Parentheses)
+    val tokens = Regex("(\\d+\\.?\\d*)|([+\\-*/()])")
+        .findAll(cleanedExpr)
+        .map { it.value }
+        .toList()
+
+    val precedence = mapOf("+" to 1, "-" to 1, "*" to 2, "/" to 2)
+    val output = mutableListOf<String>()
+    val stack = Stack<String>()
+
+    // 3. Shunting-yard: Infix to Postfix (RPN)
+    for (token in tokens) {
+        when {
+            token.toDoubleOrNull() != null -> output.add(token)
+            token == "(" -> stack.push(token)
+            token == ")" -> {
+                while (stack.isNotEmpty() && stack.peek() != "(") output.add(stack.pop())
+                stack.pop() // Remove "("
+            }
+            else -> {
+                while (stack.isNotEmpty() && stack.peek() != "(" &&
+                    precedence[stack.peek()]!! >= precedence[token]!!) {
+                    output.add(stack.pop())
+                }
+                stack.push(token)
+            }
+        }
+    }
+    while (stack.isNotEmpty()) output.add(stack.pop())
+
+    // 4. Evaluate the Postfix expression
+    val evaluationStack = Stack<Double>()
+    for (token in output) {
+        val value = token.toDoubleOrNull()
+        if (value != null) {
+            evaluationStack.push(value)
+        } else {
+            val b = evaluationStack.pop()
+            val a = evaluationStack.pop()
+            when (token) {
+                "+" -> evaluationStack.push(a + b)
+                "-" -> evaluationStack.push(a - b)
+                "*" -> evaluationStack.push(a * b)
+                "/" -> evaluationStack.push(a / b)
+            }
+        }
+    }
+    return evaluationStack.pop()
 }
 
 @Preview(showBackground = true, showSystemUi = true)
